@@ -11,6 +11,7 @@ class CupertinoVideoProgressBar extends StatelessWidget {
     this.onDragEnd,
     this.onDragStart,
     this.onDragUpdate,
+    required this.callBack,
     Key? key,
   })  : colors = colors ?? ChewieProgressColors(),
         super(key: key);
@@ -20,6 +21,7 @@ class CupertinoVideoProgressBar extends StatelessWidget {
   final Function()? onDragStart;
   final Function()? onDragEnd;
   final Function()? onDragUpdate;
+  final onDragBack callBack;
 
   @override
   Widget build(BuildContext context) {
@@ -32,6 +34,7 @@ class CupertinoVideoProgressBar extends StatelessWidget {
       onDragEnd: onDragEnd,
       onDragStart: onDragStart,
       onDragUpdate: onDragUpdate,
+      callBack: callBack,
     );
   }
 }

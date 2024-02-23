@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:chewie/chewie.dart';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
+
+typedef onDragBack = void Function(Duration position);
 
 class VideoProgressBar extends StatefulWidget {
   VideoProgressBar(
@@ -12,7 +16,7 @@ class VideoProgressBar extends StatefulWidget {
     Key? key,
     required this.barHeight,
     required this.handleHeight,
-    required this.drawShadow,
+    required this.drawShadow, required this.callBack,
   })  : colors = colors ?? ChewieProgressColors(),
         super(key: key);
 
@@ -21,7 +25,7 @@ class VideoProgressBar extends StatefulWidget {
   final Function()? onDragStart;
   final Function()? onDragEnd;
   final Function()? onDragUpdate;
-
+  final onDragBack callBack;
   final double barHeight;
   final double handleHeight;
   final bool drawShadow;
@@ -77,50 +81,58 @@ class _VideoProgressBarState extends State<VideoProgressBar> {
       ),
     );
 
-    return chewieController.draggableProgressBar
-        ? GestureDetector(
-            onHorizontalDragStart: (DragStartDetails details) {
-              if (!controller.value.isInitialized) {
-                return;
-              }
-              _controllerWasPlaying = controller.value.isPlaying;
-              if (_controllerWasPlaying) {
-                controller.pause();
-              }
+    return //chewieController.draggableProgressBar
+        /*?*/ GestureDetector(
+      onHorizontalDragStart: (DragStartDetails details) {
+        if (!controller.value.isInitialized) {
+          return;
+        }
+        _controllerWasPlaying = controller.value.isPlaying;
+        if (_controllerWasPlaying) {
+          controller.pause();
+        }
 
-              widget.onDragStart?.call();
-            },
-            onHorizontalDragUpdate: (DragUpdateDetails details) {
-              if (!controller.value.isInitialized) {
-                return;
-              }
-              _latestDraggableOffset = details.globalPosition;
-              listener();
+        widget.onDragStart?.call();
+      },
+      onHorizontalDragUpdate: (DragUpdateDetails details) {
+        if (!controller.value.isInitialized) {
+          return;
+        }
+        _latestDraggableOffset = details.globalPosition;
+        listener();
 
-              widget.onDragUpdate?.call();
-            },
-            onHorizontalDragEnd: (DragEndDetails details) async {
-              if (_controllerWasPlaying) {
-                controller.play();
-              }
+        widget.onDragUpdate?.call();
+      },
+      onHorizontalDragEnd: (DragEndDetails details) async {
+        if (_controllerWasPlaying) {
+          controller.play();
+        }
 
-              if (_latestDraggableOffset != null) {
-                await _seekToRelativePosition(_latestDraggableOffset!);
-                _latestDraggableOffset = null;
-              }
+        if (_latestDraggableOffset != null) {
+          //await _seekToRelativePosition(_latestDraggableOffset!);
+          widget.callBack(context.calcRelativePosition(
+            controller.value.duration,
+            _latestDraggableOffset,
+          ));
+          _latestDraggableOffset = null;
+        }
 
-              widget.onDragEnd?.call();
-            },
-            onTapDown: (TapDownDetails details) async {
-              if (!controller.value.isInitialized) {
-                return;
-              }
-              await _seekToRelativePosition(details.globalPosition);
-              widget.onDragEnd?.call();
-            },
-            child: child,
-          )
-        : child;
+        widget.onDragEnd?.call();
+      },
+      onTapDown: (TapDownDetails details) async {
+        if (!controller.value.isInitialized) {
+          return;
+        }
+        //await _seekToRelativePosition(details.globalPosition);
+        widget.callBack(context.calcRelativePosition(
+          controller.value.duration,
+          details.globalPosition,
+        ));
+        widget.onDragEnd?.call();
+      },
+      child: child,
+    );
+    // : child;
   }
 }
 

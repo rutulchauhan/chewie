@@ -592,7 +592,7 @@ class _MaterialDesktopControlsState extends State<MaterialDesktopControls>
               bufferedColor:
                   Theme.of(context).colorScheme.background.withOpacity(0.5),
               backgroundColor: Theme.of(context).disabledColor.withOpacity(.5),
-            ),
+            ), callBack: (Duration position) {  },
       ),
     );
   }

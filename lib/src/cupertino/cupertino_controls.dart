@@ -718,6 +718,7 @@ class _CupertinoControlsState extends State<CupertinoControls>
                   255,
                 ),
               ),
+          callBack: (Duration position) {},
         ),
       ),
     );
